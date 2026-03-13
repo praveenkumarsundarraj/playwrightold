@@ -42,6 +42,7 @@ test('Client Page Testing' ,async ({page}) => {
         const productName = await products.nth(i).locator('b').textContent();
         console.log(await products.nth(i).locator('b').textContent());
         if(productName == productName){
+            //locator chaining to find the button inside the specific product card
             console.log(await products.nth(i).locator('button').nth(1).textContent());
             await products.nth(i).locator('text=  Add To Cart').click();
             break;

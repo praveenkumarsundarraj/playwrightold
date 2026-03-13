@@ -31,7 +31,7 @@ test('moreValidations',async({page})=>{
     //a[href='value']:visible -> this :visible helps to select the visible selector from the list of selectors available in DOM
 });
 
-test.only('screenshot validation',async({page})=>{
+test('screenshot validation',async({page})=>{
     await page.goto('https://rahulshettyacademy.com/AutomationPractice/');
     //npx playwright test --debug -> this is user to debug the code line by line
     await page.locator('#show-textbox').click();

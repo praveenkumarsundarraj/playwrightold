@@ -22,10 +22,14 @@ test('Client Page API Testing' ,async ({page}) => {
     const orderList = page.locator('button:has-text(\'view\')');
     const orderedId = page.locator('div small + div');
     let productName = 'ZARA COAT 3';
-    page.route('**/*.js',route=>route.abort());// this is a regular experession to denote all the url which has css file loaded
-    page.route('**/*.{jpg,png}',route=>route.abort());// this is a regular experession to block more than one file type at once.. here i blocked images from the page.
-    page.on('request',request=>console.log(request.url()));//listens the request call and prints the request url
-    page.on('response',Response=>console.log(Response.status()));//listens the response and prints the status code
+    // this is a regular experession to denote all the url which has css file loaded in the page, we can also use it for js files and images by changing the file extension in the regular expression
+    page.route('**/*.js',route=>route.abort());
+    // this is a regular experession to block more than one file type at once.. here i blocked images from the page.
+    page.route('**/*.{jpg,png}',route=>route.abort());
+    //listens the request call and prints the request url
+    page.on('request',request=>console.log(request.url()));
+    //listens the response and prints the status code
+    page.on('response',Response=>console.log(Response.status()));
     await page.goto("https://rahulshettyacademy.com/loginpagePractise/");
     await page.pause();
 });
