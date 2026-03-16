@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
+import { worker } from 'cluster';
 import { trace } from 'console';
 import { TIMEOUT } from 'dns';
 import { report } from 'process';
@@ -22,7 +23,10 @@ const config = ({
     timeout: 5000,
   },
   reporter: 'html',
+  workers : 1,
+  retries: 2,
   use: {
+    baseURL: 'https://rahulshettyacademy.com',
     browserName: 'chromium',
     headless: false,
     screenshot: 'on',

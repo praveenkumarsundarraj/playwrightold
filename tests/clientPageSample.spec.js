@@ -1,11 +1,5 @@
 import { test, expect } from '@playwright/test';
 
-// test('First Sample Test' ,async ({browser}) => {
-//     const context = await browser .newContext();
-//     const page = await context.newPage();
-//     await page.goto("httpS://www.google.com");
-// });
-
 test('Client Page Testing' ,async ({page}) => {
     const userName = page.locator('#userEmail');
     const password = page.locator('#userPassword');
@@ -33,8 +27,6 @@ test('Client Page Testing' ,async ({page}) => {
     await userName.fill('rahulshettyacademy@mailinator.com');
     await password.fill('Testing@1');
     await signIn.click();
-    // console.log(await cardTitles.first().textContent());
-    // await page.waitForLoadState('networkidle');
     await cardTitles.first().waitFor();
     console.log(await cardTitles.allTextContents());
     const productCount = await products.count();
@@ -87,5 +79,5 @@ test('Client Page Testing' ,async ({page}) => {
     } 
     expect(await orderedId.textContent()).toEqual(orderNumber.replaceAll('|','').trim())
 
-    await page.pause();
+    
 });

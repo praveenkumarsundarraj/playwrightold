@@ -1,46 +1,62 @@
-import {test, expect,request} from '@playwright/test';
+import { test, expect, request } from '@playwright/test';
+import { APIUtils} from '../utils/APIUtils';
 
-const {APIUtils} = require('./utils/APIUtils');
+let loginPayLoad = {userEmail: "praveenkum261@gmail.com", userPassword: "Testing@1"};
+let createOrderPayload = {orders: [{country: "India", productOrderedId: "6960eac0c941646b7a8b3e68"}]};
+let fakeorderPayload ={data:[],message:"No Orders"};
+let routeCall = 'https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*';
+let viewOrderCall= 'https://rahulshettyacademy.com/api/ecom/order/get-orders-details?id=*';
+let orderId, orderResponse, apiContext, apiUtils;
 
-const loginPayload = {userEmail:"rahulshettyacademy@mailinator.com",userPassword:"Testing@1"};//the JS object will not have qoutes for key, only values are covered with qoutes
-const createOrderPayload = {orders:[{country:"India",productOrderedId:"68a961459320a140fe1ca57a"}]};
-const fakeOrderResponse={data:[],message:"No Orders"};
-const headertoRoute = 'https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*';
-let APIresponse;
-test.beforeAll('Call Login API',async()=>{
-    //apiContext stores the new context which invokes API using request object, this doesnt need any page to be created
-    const apicontext = await request.newContext();
-    const utils= new APIUtils(apicontext,loginPayload);
-    APIresponse= await utils.createOrder(createOrderPayload);
+test.beforeAll('Call Login API', async()=> {
+    apiContext = await request.newContext();
+    apiUtils = new APIUtils(apiContext,loginPayLoad);
+    orderResponse =await apiUtils.createOrder(createOrderPayload);
+    orderId = orderResponse.orderID;
 });
 
-
-test('Client Page API Testing' ,async ({page}) => {
-    const utils = new APIUtils();
-    await utils.addLocalStorage(page,APIresponse.token);
+test('Request Intercept' ,async ({page}) => {
+    const cardTitles = page.locator('.card-body h5 b');
     const ordersTab = page.locator('button:has-text(\'  ORDERS\')');
-    const orderList = page.locator('tr:has(th[scope=\'row\'])');
-    const orderedId = page.locator('div small + div');
-    let productName = 'ZARA COAT 3';
-    //route request to show empty order page by manipulating response
-    await page.route(headertoRoute,
-        async route=>{
-            const response = await page.request.fetch(route.request());
-            let body = JSON.stringify(fakeOrderResponse);
-            //now maniputlating the response received above
-            route.fulfill(// this takes the real response and manipilated response and assigns the manipulated to real one
+    await apiUtils.addLocalStorage(page,orderResponse.token);
+    await page.goto("https://rahulshettyacademy.com/client");
+    await cardTitles.first().waitFor();
+    console.log(await cardTitles.allTextContents());
+    const orderNumber = orderId;
+    console.log(orderNumber);
+    await ordersTab.click();
+    await page.locator('button:has-text(\'View\')').first().click();
+    await page.route(viewOrderCall,
+        routeIt => {routeIt.continue({
+          url : viewOrderCall,  
+        });
+    });
+    await page.waitForResponse(viewOrderCall);
+
+});
+
+test('response intercept' ,async ({page}) => {
+    const cardTitles = page.locator('.card-body h5 b');
+    const ordersTab = page.locator('button:has-text(\'  ORDERS\')');
+    await apiUtils.addLocalStorage(page,orderResponse.token);
+    await page.goto("https://rahulshettyacademy.com/client");
+    await cardTitles.first().waitFor();
+    console.log(await cardTitles.allTextContents());
+    const orderNumber = orderId;
+    console.log(orderNumber);
+    await page.route(routeCall,
+        async routeIt => {
+            const response = await page.request.fetch(routeIt.request());
+            let body = JSON.stringify(fakeorderPayload);
+            routeIt.fulfill(
                 {
                     response,
                     body,
                 }
             );
         }
-    )
-
-    await page.goto("https://rahulshettyacademy.com/client");
-    await ordersTab.waitFor();
+    );
     await ordersTab.click();
-    await page.waitForResponse(headertoRoute);
-    await page.pause();
+    await page.waitForResponse(routeCall);
 
 });

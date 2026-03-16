@@ -26,7 +26,7 @@ test('moreValidations',async({page})=>{
     //Handle frames
     const newFrame = await page.frameLocator('#courses-iframe');//helps to switch and create a new page object by framing the new frame
     await newFrame.locator('a:has-text(\'Sign Up\')').click();
-    await page.pause();
+    
 
     //a[href='value']:visible -> this :visible helps to select the visible selector from the list of selectors available in DOM
 });
@@ -36,10 +36,13 @@ test('screenshot validation',async({page})=>{
     //npx playwright test --debug -> this is user to debug the code line by line
     await page.locator('#show-textbox').click();
     await expect(page.locator('#displayed-text')).toBeVisible();//helps to check whether the element is visible
-    await page.locator('#displayed-text').screenshot({path:'./screenshots/screenshotSample2.png'});//take screenshot for element..
+    await page.locator('#displayed-text').screenshot({path:'./screenshots/testscreenshot.png'});//take screenshot for element..
     await page.screenshot({path:'./screenshots/screenshotSample.png'});//take screenshot of whole page
     await page.locator('#hide-textbox').click();
     await expect(page.locator('#displayed-text')).toBeHidden();//helps to check whether the element is hidden
+});
 
-
+test('testing visual',async({page}) => {
+    await page.goto('https://rahulshettyacademy.com/AutomationPractice/');
+    expect(await page.screenshot()).toMatchSnapshot('screenshotSample.png');
 });

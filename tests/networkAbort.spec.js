@@ -1,6 +1,6 @@
 import {test, expect,request} from '@playwright/test';
 
-const {APIUtils} = require('./utils/APIUtils');
+const {APIUtils} = require('../utils/APIUtils');
 
 const loginPayload = {userEmail:"rahulshettyacademy@mailinator.com",userPassword:"Testing@1"};//the JS object will not have qoutes for key, only values are covered with qoutes
 const createOrderPayload = {orders:[{country:"India",productOrderedId:"68a961459320a140fe1ca57a"}]};
@@ -31,5 +31,5 @@ test('Client Page API Testing' ,async ({page}) => {
     //listens the response and prints the status code
     page.on('response',Response=>console.log(Response.status()));
     await page.goto("https://rahulshettyacademy.com/loginpagePractise/");
-    await page.pause();
+    
 });

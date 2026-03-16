@@ -1,37 +1,38 @@
-import {test, expect,request} from '@playwright/test';
+import { test, expect, request } from '@playwright/test';
+import { APIUtils} from '../utils/APIUtils';
 
-const {APIUtils} = require('./utils/APIUtils');
+let loginPayLoad = {userEmail: "praveenkum261@gmail.com", userPassword: "Testing@1"};
+let createOrderPayload = {orders: [{country: "India", productOrderedId: "6960eac0c941646b7a8b3e68"}]};
+let orderId, orderResponse, apiContext, apiUtils;
 
-const loginPayload = {userEmail:"rahulshettyacademy@mailinator.com",userPassword:"Testing@1"};//the JS object will not have qoutes for key, only values are covered with qoutes
-const createOrderPayload = {orders:[{country:"India",productOrderedId:"68a961459320a140fe1ca57a"}]};
-const fakeOrderResponse={data:[],message:"No Orders"};
-const headertoRoute = 'https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*';
-let APIresponse;
-test.beforeAll('Call Login API',async()=>{
-    //apiContext stores the new context which invokes API using request object, this doesnt need any page to be created
-    const apicontext = await request.newContext();
-    const utils= new APIUtils(apicontext,loginPayload);
-    APIresponse= await utils.createOrder(createOrderPayload);
+test.beforeAll('Call Login API', async()=> {
+    apiContext = await request.newContext();
+    apiUtils = new APIUtils(apiContext,loginPayLoad);
+    orderResponse =await apiUtils.createOrder(createOrderPayload);
+    orderId = orderResponse.orderID;
 });
 
-
-test('Client Page API Testing' ,async ({page}) => {
-    const utils = new APIUtils();
-    await utils.addLocalStorage(page,APIresponse.token);
+test('Client Page Testing' ,async ({page}) => {
+    const cardTitles = page.locator('.card-body h5 b');
     const ordersTab = page.locator('button:has-text(\'  ORDERS\')');
-    const orderList = page.locator('button:has-text(\'view\')');
+    const orderList = page.locator('tr:has(th[scope=\'row\'])');
     const orderedId = page.locator('div small + div');
-    let productName = 'ZARA COAT 3';
+    await apiUtils.addLocalStorage(page,orderResponse.token);
     await page.goto("https://rahulshettyacademy.com/client");
-    await ordersTab.waitFor();
+    await cardTitles.first().waitFor();
+    console.log(await cardTitles.allTextContents());
+    const orderNumber = orderId;
+    console.log(orderNumber);
     await ordersTab.click();
-    //Network intercepting and changing the request
-    await page.route('https://rahulshettyacademy.com/api/ecom/order/get-orders-details?id=*',
-        route=> route.continue({
-            url:'https://rahulshettyacademy.com/api/ecom/order/get-orders-details?id=6932880c32ed865871212321',
-        })        
-    )
-    await orderList.first().click();
-    await page.pause();
+    await orderList.first().waitFor();
+    const orderCount = await orderList.count();
+    for(let i=0;i<orderCount;i++){
+        const chkOrderId = await orderList.locator('th').nth(i).textContent();
+        if(orderNumber.includes(chkOrderId)){
+            await orderList.first().locator('td').nth(4).locator('button').click()
+            break;
+        }
+    } 
+    expect(await orderedId.textContent()).toEqual(orderNumber.toString())
 
 });

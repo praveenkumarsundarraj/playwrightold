@@ -1,3 +1,6 @@
+const { create } = require("domain");
+const { expect } = require("playwright/test");
+
 class APIUtils{
     
     constructor(apicontext,loginPayload){
@@ -31,6 +34,7 @@ class APIUtils{
                     'content-type' : 'application/json',
                 }
                 });
+                expect(createOrder.ok()).toBeTruthy();
             const createOrderResponse = await createOrder.json();
             response.orderMessage = createOrderResponse.message;
             response.orderID = createOrderResponse.orders[0];
@@ -45,15 +49,11 @@ class APIUtils{
             },token);//token specified in this line is the token we created in beforeall which stores the token value
     }
 
-    async initSessionStorage(token, orderID){
+    async initSessionStorage(page){
         
         await page.addInitScript(value=>{
         window.sessionStorage.setItem('sessionToken',value)
-        } , token);//setting session storage for testing purpose to check whether we can add token as session token as key
-
-        await page.addInitScript(order=>{
-        window.sessionStorage.setItem('orderId',order)
-        } , orderID);
+        } , this.getToken());//setting session storage for testing purpose to check whether we can add token as session token as key
     }
 
 }

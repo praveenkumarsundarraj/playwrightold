@@ -13,8 +13,8 @@ test.beforeAll(async({browser})=>{
     await password.fill('Testing@1');
     await signIn.click();
     await cardTitles.first().waitFor();
-    await context.storageState({path:'state.json'});
-    contextWithState = await browser.newContext({storageState: 'state.json'})
+    await context.storageState({path: 'State.json'});
+    contextWithState =await browser.newContext({storageState: 'State.json'});
 });
 
 test('Client Page Testing' ,async () => {
@@ -91,5 +91,5 @@ test('Client Page Testing' ,async () => {
     } 
     expect(await orderedId.textContent()).toEqual(orderNumber.replaceAll('|','').trim())
 
-    await page.pause();
+    
 });

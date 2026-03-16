@@ -1,5 +1,5 @@
 import {test , expect, request} from '@playwright/test';
-import { APITest } from './utils/APITest';
+import { APITest } from '../utils/APITest';
 
 const loginPayload = {userEmail:"rahulshettyacademy@mailinator.com",userPassword:"Testing@1"}
 const orderPayload = {orders:[{country:"Malaysia",productOrderedId:"68a961719320a140fe1ca57c"}]};
@@ -18,5 +18,5 @@ test('api sample practise',async({page})=>{
         localStorage.setItem('token',value)
     },token);
     await page.goto("https://rahulshettyacademy.com/client/");
-    await page.pause();
+    
 });
